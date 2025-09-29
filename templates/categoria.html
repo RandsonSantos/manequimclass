@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}{{ categoria | capitalize }}{% endblock %}
+
+{% block content %}
+<h2 class="mb-5 text-center fw-bold">Itens da categoria: {{ categoria | capitalize }}</h2>
+<div class="row">
+  {% for item in itens %}
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+      <div class="card h-100 shadow-sm border-0 rounded-4">
+        <div id="carouselItem{{ item.id }}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner rounded-top">
+            {% for imagem in item.imagens %}
+              <div class="carousel-item {% if loop.first %}active{% endif %}">
+                <img src="{{ url_for('static', filename='images/' ~ imagem.caminho) }}"
+                     class="d-block w-100 card-img-top img-hover" alt="{{ item.nome }}">
+              </div>
+            {% endfor %}
+            {% if not item.imagens %}
+              <div class="carousel-item active">
+                <img src="{{ url_for('static', filename='images/default.jpg') }}"
+                     class="d-block w-100 card-img-top img-hover" alt="Imagem padrão">
+              </div>
+            {% endif %}
+          </div>
+          {% if item.imagens|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselItem{{ item.id }}" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselItem{{ item.id }}" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+          {% endif %}
+        </div>
+        <div class="card-body text-center">
+          <h5 class="card-title">{{ item.nome }}</h5>
+          <p class="card-text">
+            <span class="badge {{ 'bg-success' if item.disponivel else 'bg-danger' }}">
+              {{ 'Disponível' if item.disponivel else 'Indisponível' }}
+            </span>
+          </p>
+          <a href="{{ url_for('item', item_id=item.id) }}" class="btn btn-outline-primary btn-sm">Ver detalhes</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
