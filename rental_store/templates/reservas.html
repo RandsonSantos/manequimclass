@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Reservas de Prova{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">Reservas de Prova</h3>
+
+  <!-- Painel de resumo -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card border-success status-card" data-status="confirmada" style="cursor:pointer;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Confirmadas</h5>
+          <p class="card-text fw-bold text-success">{{ reservas | selectattr('confirmada') | rejectattr('cancelada') | list | length }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-warning status-card" data-status="pendente" style="cursor:pointer;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Pendentes</h5>
+          <p class="card-text fw-bold text-warning">{{ reservas | rejectattr('confirmada') | rejectattr('cancelada') | list | length }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-danger status-card" data-status="cancelada" style="cursor:pointer;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Canceladas</h5>
+          <p class="card-text fw-bold text-danger">{{ reservas | selectattr('cancelada') | list | length }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtro por status -->
+  <form method="GET" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <select name="status" class="form-select">
+        <option value="">Todos os Status</option>
+        <option value="confirmada" {% if request.args.get('status') == 'confirmada' %}selected{% endif %}>Confirmadas</option>
+        <option value="pendente" {% if request.args.get('status', 'pendente') == 'pendente' %}selected{% endif %}>Pendentes</option>
+        <option value="cancelada" {% if request.args.get('status') == 'cancelada' %}selected{% endif %}>Canceladas</option>
+      </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="submit" class="btn btn-outline-primary w-100">
+        <i class="bi bi-filter"></i> Filtrar
+      </button>
+    </div>
+  </form>
+
+  <!-- Tabela de reservas -->
+  {% if reservas %}
+  <table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Cliente</th>
+        <th>Turno</th>
+        <th>Status</th>
+        <th class="text-center">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reserva in reservas %}
+      <tr class="{% if reserva.cancelada %}reserva-cancelada{% elif reserva.confirmada %}reserva-confirmada{% else %}reserva-pendente{% endif %}" style="cursor:pointer;" onclick="window.location='{{ url_for('ver_pedido_de_prova', reserva_id=reserva.id) }}'">
+        <td>{{ reserva.nome }}</td>
+        <td>{{ reserva.turno.title() if reserva.turno else '-' }}</td>
+        <td>
+          {% if reserva.cancelada %}
+            <span class="badge bg-danger">Cancelada</span>
+          {% elif reserva.confirmada %}
+            <span class="badge bg-success">Confirmada</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">Pendente</span>
+          {% endif %}
+        </td>
+        <td class="text-center">
+          {% if not reserva.cancelada %}
+            {% if reserva.item %}
+            {% endif %}
+            {% if not reserva.confirmada %}
+            <form method="POST" action="{{ url_for('confirmar_reserva', reserva_id=reserva.id) }}" class="d-inline">
+              <button type="submit" class="btn btn-sm btn-outline-primary me-1" title="Marcar como Confirmada">
+                <i class="bi bi-check2-circle"></i>
+              </button>
+            </form>
+            {% endif %}
+          {% else %}
+            <span class="text-muted">Sem ações</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <div class="alert alert-warning">Nenhuma reserva registrada até o momento.</div>
+  {% endif %}
+</div>
+<!-- Paginação -->
+{% if pagination.pages > 1 %}
+<nav aria-label="Navegação de páginas">
+  <ul class="pagination justify-content-center">
+    {% if pagination.has_prev %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for('listar_reservas', status=status, page=pagination.prev_num) }}">← Anterior</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled"><span class="page-link">← Anterior</span></li>
+    {% endif %}
+
+    <li class="page-item disabled"><span class="page-link">Página {{ pagination.page }} de {{ pagination.pages }}</span></li>
+
+    {% if pagination.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for('listar_reservas', status=status, page=pagination.next_num) }}">Próxima →</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled"><span class="page-link">Próxima →</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+<!-- Estilos visuais por status -->
+<style>
+  .reserva-confirmada {
+    background-color: #e6f9ec;
+    transition: background-color 0.3s ease;
+  }
+  .reserva-pendente {
+    background-color: #fffbe6;
+    transition: background-color 0.3s ease;
+  }
+  .reserva-cancelada {
+    background-color: #fbeaea;
+    transition: background-color 0.3s ease;
+  }
+</style>
+
+<!-- JS: sombra ao passar o mouse -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const linhas = document.querySelectorAll("tr.reserva-confirmada, tr.reserva-pendente, tr.reserva-cancelada");
+    linhas.forEach((linha) => {
+      linha.addEventListener("mouseenter", () => {
+        linha.style.boxShadow = "0 0 8px rgba(0,0,0,0.1)";
+      });
+      linha.addEventListener("mouseleave", () => {
+        linha.style.boxShadow = "none";
+      });
+    });
+  });
+</script>
+
+<!-- JS: filtro automático ao clicar nos cards -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const cards = document.querySelectorAll(".status-card");
+    const selectStatus = document.querySelector("select[name='status']");
+
+    cards.forEach(card => {
+      card.addEventListener("click", () => {
+        const status = card.getAttribute("data-status");
+        if (selectStatus) {
+          selectStatus.value = status;
+          selectStatus.form.submit();
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

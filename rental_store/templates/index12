@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Manequim Class – Aluguel de Vestidos e Trajes{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="hero bg-light py-5 text-center">
+  <div class="container">
+    <h1 class="display-4 fw-bold text-uppercase text-primary">Manequim Class</h1>
+    <p class="lead text-muted">Elegância para todas as idades e ocasiões especiais</p>
+    <a href="{{ url_for('catalogo') }}" class="btn btn-primary btn-lg mt-3 px-4 py-2">👗 Ver Catálogo</a>
+  </div>
+</section>
+
+<!-- Categorias em Destaque -->
+<section class="categorias py-5 bg-white">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5 text-uppercase text-dark">Categorias em Destaque</h2>
+    <div class="row">
+      {% for categoria, item in destaques.items() %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <a href="{{ url_for('categoria', categoria=categoria) }}" class="text-decoration-none">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+              <img src="{{ url_for('static', filename='images/' ~ item.imagens[0].caminho if item and item.imagens else 'images/default.jpg') }}"
+                   class="card-img-top img-hover rounded-top" alt="Categoria {{ categoria }}" loading="lazy">
+              <div class="card-body text-center">
+                <h5 class="card-title text-capitalize fw-semibold">{{ categoria }}</h5>
+                <p class="card-text text-muted">Descubra modelos exclusivos para {{ categoria.lower() }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Sobre a Loja -->
+<section class="sobre py-5 bg-light">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <img src="{{ url_for('static', filename='images/sobre.jpg') }}" class="img-fluid rounded-4 shadow-sm" alt="Sobre a loja">
+      </div>
+      <div class="col-md-6">
+        <h3 class="fw-bold text-uppercase text-primary mb-3">Sobre a Manequim Class</h3>
+        <p class="text-muted fs-5">Somos referência em aluguel de vestidos e trajes para casamentos, festas e eventos formais. Atendemos público adulto e infantil com peças selecionadas, caimento impecável e atendimento personalizado.</p>
+        <p class="text-muted">Nosso compromisso é transformar momentos especiais em memórias inesquecíveis, com estilo, conforto e sofisticação.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-primary mt-3 px-4 py-2">📞 Fale Conosco</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Estilo -->
+<style>
+  .img-hover {
+    transition: transform 0.3s ease;
+  }
+  .img-hover:hover {
+    transform: scale(1.03);
+  }
+  .card-title {
+    font-size: 1.2rem;
+  }
+</style>
+{% endblock %}

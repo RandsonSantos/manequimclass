@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Cadastrar Novo Item{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Cadastrar Novo Item</h2>
+<form method="POST" enctype="multipart/form-data" class="row g-3">
+
+  <!-- Nome -->
+  <div class="col-md-6">
+    <label class="form-label">Nome</label>
+    <input type="text" name="nome" class="form-control" required>
+  </div>
+
+  <!-- Modelo -->
+  <div class="col-md-6">
+    <label class="form-label">Modelo</label>
+    <select name="modelo" class="form-select" required>
+      <option value="vestido">Vestido</option>
+      <option value="traje">Traje</option>
+    </select>
+  </div>
+
+  <!-- Tipo -->
+  <div class="col-md-6">
+    <label class="form-label">Tipo</label>
+    <select name="tipo" class="form-select" required>
+      <option value="aluguel">Aluguel</option>
+      <option value="venda">Venda</option>
+    </select>
+  </div>
+
+  <!-- Categoria -->
+  <div class="col-md-6">
+    <label class="form-label">Categoria</label>
+    <select name="categoria" class="form-select" required>
+      <option value="noiva">Noiva</option>
+      <option value="noivo">Noivo</option>
+      <option value="debutante">Debutante</option>
+      <option value="formatura">Formatura</option>
+      <option value="crianca">Criança</option>
+    </select>
+  </div>
+
+  <!-- Disponibilidade -->
+  <div class="col-md-6 d-flex align-items-center">
+    <div class="form-check mt-4">
+      <input type="checkbox" name="disponivel" class="form-check-input" checked>
+      <label class="form-check-label">Disponível</label>
+    </div>
+  </div>
+
+  <!-- Descrição -->
+  <div class="col-12">
+    <label class="form-label">Descrição</label>
+    <textarea name="descricao" class="form-control" rows="3"></textarea>
+  </div>
+
+  <!-- Imagens -->
+  <div class="col-12">
+    <label class="form-label">Imagens</label>
+    <input type="file" name="imagens" class="form-control" multiple required>
+    <small class="text-muted">Você pode selecionar várias imagens segurando Ctrl ou Shift.</small>
+  </div>
+
+  <!-- Botão -->
+  <div class="col-12">
+    <button type="submit" class="btn btn-success">Cadastrar</button>
+  </div>
+</form>
+{% endblock %}
