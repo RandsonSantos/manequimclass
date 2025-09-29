@@ -748,7 +748,6 @@ import qrcode
 import os
 
 @app.route('/pedido/<int:pedido_id>/imprimir')
-@login_required
 def imprimir_pedido(pedido_id):
     pedido = Pedido.query.get_or_404(pedido_id)
     cliente = Cliente.query.get(pedido.cliente_id)
