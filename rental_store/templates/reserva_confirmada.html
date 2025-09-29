@@ -1,9 +1,0 @@
-{% extends 'base.html' %}
-{% block title %}Reserva Confirmada{% endblock %}
-{% block content %}
-  <div class="text-center mt-5">
-    <h2 class="text-success">Reserva enviada com sucesso!</h2>
-    <p>Obrigado, <strong>{{ nome }}</strong>. Sua reserva para <strong>{{ item.nome }}</strong> foi registrada.</p>
-    <a href="{{ url_for('catalogo') }}" class="btn btn-outline-primary mt-3">Voltar ao Catálogo</a>
-  </div>
-{% endblock %}
