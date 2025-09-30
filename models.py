@@ -99,3 +99,10 @@ class LogPedido(db.Model):
     acao = db.Column(db.String(50))  # exemplo: 'criado', 'editado', 'excluído'
     detalhes = db.Column(db.Text)
     data = db.Column(db.DateTime, default=datetime.utcnow)
+
+class PedidoQR(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    pedido_id = db.Column(db.Integer, db.ForeignKey('pedido.id'), unique=True)
+    qr_code_path = db.Column(db.String(255), nullable=False)
+
+    pedido = db.relationship('Pedido', backref=db.backref('qr', uselist=False))
