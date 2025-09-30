@@ -10,7 +10,7 @@ from datetime import datetime, date, timedelta
 import os
 
 # Modelos
-from models import Cliente, LogPedido, Pedido, db, Item, Imagem, CategoriaDestaque, Reserva, Usuario
+from models import Cliente, LogPedido, Pedido, PedidoQR, db, Item, Imagem, CategoriaDestaque, Reserva, Usuario
 
 # App e configurações
 app = Flask(__name__)
@@ -57,7 +57,7 @@ def index():
 
 
 @app.route('/painel')
-#@login_required
+@login_required
 def painel():
     categorias = db.session.query(Item.categoria, db.func.count(Item.id)).group_by(Item.categoria).all()
     disponibilidade = {
@@ -76,7 +76,7 @@ def painel():
     )
 
 @app.route('/cadastrar-usuario', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def cadastrar_usuario():
     if request.method == 'POST':
         nome = request.form['nome']
@@ -748,19 +748,28 @@ import qrcode
 import os
 
 @app.route('/pedido/<int:pedido_id>/imprimir')
+###@login_required
 def imprimir_pedido(pedido_id):
     pedido = Pedido.query.get_or_404(pedido_id)
     cliente = Cliente.query.get(pedido.cliente_id)
     item = Item.query.get(pedido.item_id)
 
-    # Gera QR Code
-    url = url_for('ver_pedido', pedido_id=pedido.id, _external=True)
-    qr = qrcode.make(url)
-    qr_path = f'static/qrcodes/pedido_{pedido.id}.png'
-    os.makedirs(os.path.dirname(qr_path), exist_ok=True)
-    qr.save(qr_path)
+    # Verifica se já existe QR para o pedido
+    pedido_qr = PedidoQR.query.filter_by(pedido_id=pedido.id).first()
+    if not pedido_qr:
+        # Gera QR Code
+        url = url_for('ver_pedido', pedido_id=pedido.id, _external=True)
+        qr = qrcode.make(url)
+        qr_path = f'static/qrcodes/pedido_{pedido.id}.png'
+        os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+        qr.save(qr_path)
 
-    return render_template('imprimir_pedido.html', pedido=pedido, cliente=cliente, item=item, qr_path=qr_path)
+        # Salva no banco
+        pedido_qr = PedidoQR(pedido_id=pedido.id, qr_code_path=qr_path)
+        db.session.add(pedido_qr)
+        db.session.commit()
+
+    return render_template('imprimir_pedido.html', pedido=pedido, cliente=cliente, item=item, qr_path=pedido_qr.qr_code_path)
 
 @app.context_processor
 def inject_now():
